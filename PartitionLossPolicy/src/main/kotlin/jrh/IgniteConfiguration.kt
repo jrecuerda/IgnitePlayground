@@ -7,8 +7,7 @@ import org.apache.ignite.configuration.IgniteConfiguration
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi
 import org.apache.ignite.spi.discovery.tcp.ipfinder.multicast.TcpDiscoveryMulticastIpFinder
 
-object MyIgniteConfiguration {
-    internal operator fun get(workdir: String) = IgniteConfiguration().apply {
+fun igniteConfiguration(workdir: String) = IgniteConfiguration().apply {
         System.setProperty(IgniteSystemProperties.IGNITE_QUIET, "false")
 
         consistentId = workdir
@@ -31,4 +30,3 @@ object MyIgniteConfiguration {
             }
         }
     }
-}

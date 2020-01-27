@@ -12,11 +12,6 @@ private fun activeGrid(ignite: Ignite) {
     println("JRH: Cluster is active")
 }
 
-private fun setTopology(ignite: Ignite) { ignite.cluster().setBaselineTopology(ignite.cluster().forServers().nodes())
-    println("JRH: BaselineTopology = ${ignite.cluster().currentBaselineTopology()!!.map { it.consistentId() }}")
-}
-
-
 private fun printPartitions(ignite: Ignite) {
     val cache = ignite.cache<Long, Long>("TestCache")
     val affinity = ignite.affinity<Long>("TestCache")
@@ -27,8 +22,7 @@ private fun printPartitions(ignite: Ignite) {
 }
 
 private fun insertData(ignite: Ignite) {
-    val cacheCfg = getCacheConfig("TestCache")
-    var cache = ignite.getOrCreateCache(cacheCfg)
+    val cache = ignite.getOrCreateCache(getCacheConfig("TestCache"))
 
     println(String.format("JRH: LostData = %s", cache.lostPartitions().toList()))
     println("Populating the cache...")
@@ -43,9 +37,8 @@ private fun insertData(ignite: Ignite) {
 fun main() {
     Ignition.setClientMode(true)
 
-    Ignition.start(MyIgniteConfiguration.get("CLIENT")).use { ignite ->
+    Ignition.start(igniteConfiguration("CLIENT")).use { ignite ->
         activeGrid(ignite)
-//        setTopology(ignite)
         insertData(ignite)
         printPartitions(ignite)
     }

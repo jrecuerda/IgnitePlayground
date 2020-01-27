@@ -9,7 +9,7 @@ fun getCacheConfig(cacheName: String): CacheConfiguration<Long, Long> {
 
         atomicityMode = CacheAtomicityMode.ATOMIC
         cacheMode = CacheMode.PARTITIONED
-        partitionLossPolicy = PartitionLossPolicy.READ_WRITE_SAFE
+        partitionLossPolicy = PartitionLossPolicy.IGNORE
         backups = 1
         isOnheapCacheEnabled = true
 
