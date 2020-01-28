@@ -14,7 +14,7 @@ fun getCacheConfig(cacheName: String): CacheConfiguration<Long, Long> {
         backups = 1
         isOnheapCacheEnabled = true
 
-        dataRegionName = "ephemeral"
+        dataRegionName = "persistent"
 
         affinity = RendezvousAffinityFunction(true, 20)
     }

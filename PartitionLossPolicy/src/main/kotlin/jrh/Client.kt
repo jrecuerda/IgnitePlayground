@@ -12,6 +12,7 @@ private fun activeGrid(ignite: Ignite) {
     println("JRH: Cluster is active")
 }
 
+
 private fun printPartitions(ignite: Ignite) {
     val cache = ignite.cache<Long, BinaryObject>("TestCache")
     val affinity = ignite.affinity<Long>("TestCache")
@@ -33,7 +34,7 @@ private fun insertData(ignite: Ignite) {
 private fun insertData2(ignite: Ignite) {
     val cache = ignite.getOrCreateCache(getCacheConfig("TestCache"))
 
-    println("Populating the cache...")
+    println("[JRH] Populating the cache...")
     cache.putIfAbsent(0, 10)
     cache.putIfAbsent(1, 20)
     cache.putIfAbsent(2, 30)
@@ -57,6 +58,20 @@ private fun <K, V> getValue(ignite: Ignite, cacheName: String, key: K) {
 
 private fun resetLostPartition(ignite: Ignite, cacheName: String) {
     ignite.resetLostPartitions(listOf(cacheName))
+    println("[JRH] Reset lost partitions of: $cacheName")
+}
+
+private fun setTopologyToCurrentServers(ignite: Ignite) {
+    println("[JRH] Previous Baseline topology ${ignite.cluster().currentBaselineTopology()!!.map { it.consistentId() }}")
+    ignite.cluster().setBaselineTopology(ignite.cluster().forRemotes().forServers().nodes())
+    println("[JRH] New Baseline topology ${ignite.cluster().currentBaselineTopology()!!.map { it.consistentId() }}")
+    println("[JRH] servers ${ignite.cluster().forRemotes().forServers().nodes()!!.map { it.consistentId() }}")
+    println("[JRH] alive ${ignite.cluster().topology(ignite.cluster().topologyVersion())!!.map { it.consistentId() }}")
+}
+
+private fun <K, V> cacheRebalance(ignite: Ignite, cacheName: String) {
+    ignite.cache<K, V>(cacheName).rebalance()
+    println("[JRH] New Baseline topology $cacheName")
 }
 
 fun main() {
@@ -68,32 +83,24 @@ fun main() {
         val cacheName = "TestCache"
 
         ///// STEP 1
-//        activeGrid(ignite)
-//        insertData(ignite)
-//        printPartitions(ignite)
-//        cacheDrillDown<Long, BinaryObject>(ignite, cacheName)
-//        getValue<Long, BinaryObject>(ignite, cacheName,2L)
+        activeGrid(ignite)
+        insertData(ignite)
+        printPartitions(ignite)
+        cacheDrillDown<Long, Long>(ignite, cacheName)
+        getValue<Long, Long>(ignite, cacheName,2L)
 
         //// STEP 2
-        // Get PID of the nodes storing the partition of the key 2
-        // kill -9 NODEx NODEy
-//        cacheDrillDown<Long, BinaryObject>(ignite, cacheName)
-//        getValue<Long, BinaryObject>(ignite, cacheName,2L)
+        // Get PID of the nodes storing the partition of the key 2 and kill one of them
+        // kill -9 NODEx
+//        cacheDrillDown<Long, Long>(ignite, cacheName)
+//        getValue<Long, Long>(ignite, cacheName,2L)
 
         //// STEP 3
-//        insertData2(ignite)
-//        cacheDrillDown<Long, BinaryObject>(ignite, cacheName)
-//        getValue<Long, BinaryObject>(ignite, cacheName,2L)
-
-        //// STEP 4
-        // Turn on NODEx
-//        cacheDrillDown<Long, BinaryObject>(ignite, cacheName)
-//        getValue<Long, BinaryObject>(ignite, cacheName,2L)
-
-        //// STEP 5
-//        resetLostPartition(ignite, cacheName)
-//        cacheDrillDown<Long, BinaryObject>(ignite, cacheName)
-//        getValue<Long, BinaryObject>(ignite, cacheName,2L)
+        // Notice that it is necessary to se this client as a server instead of client in order to modify the baseline topology
+//        printPartitions(ignite)
+//        setTopologyToCurrentServers(ignite)
+//        cacheDrillDown<Long, Long>(ignite, cacheName)
+//        getValue<Long, Long>(ignite, cacheName, 2L)
 
     }
 }
