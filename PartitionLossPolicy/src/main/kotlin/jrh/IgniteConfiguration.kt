@@ -15,13 +15,18 @@ fun igniteConfiguration(workdir: String) = IgniteConfiguration().apply {
 
         dataStorageConfiguration = DataStorageConfiguration().apply {
             defaultDataRegionConfiguration = DataRegionConfiguration().apply {
-                isPersistenceEnabled = true
+                isPersistenceEnabled = false
             }
             val persistentDataRegion = DataRegionConfiguration().apply {
                 isPersistenceEnabled = true
                 name = "persistent"
             }
-            setDataRegionConfigurations(persistentDataRegion)
+
+            val ephemeralDataRegion = DataRegionConfiguration().apply {
+                isPersistenceEnabled = false
+                name = "ephemeral"
+            }
+            setDataRegionConfigurations(persistentDataRegion, ephemeralDataRegion)
         }
 
         discoverySpi = TcpDiscoverySpi().apply {
